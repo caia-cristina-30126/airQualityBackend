@@ -1,6 +1,7 @@
 package licenta.airQuality.controller;
 
 import licenta.airQuality.dto.SensorDTO;
+import licenta.airQuality.entities.AirQualityIndexWithType;
 import licenta.airQuality.generators.MeasurementsGenerator;
 import licenta.airQuality.entities.Measurement;
 import licenta.airQuality.service.SensorService;
@@ -123,8 +124,9 @@ public class Controller {
     }
 
     @GetMapping("/aqi")
-    public double aqi(@RequestHeader String sensorUUID) throws ExecutionException, InterruptedException {
-        return firebaseService.airQualityIndex(sensorUUID);
+    public AirQualityIndexWithType aqi(@RequestHeader String sensorUUID) throws ExecutionException, InterruptedException {
+      AirQualityIndexWithType aiq = firebaseService.airQualityIndex(sensorUUID);
+      return aiq;
     }
 
 

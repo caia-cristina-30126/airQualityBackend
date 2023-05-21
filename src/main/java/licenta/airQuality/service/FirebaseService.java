@@ -5,6 +5,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import licenta.airQuality.entities.AirQualityIndexWithType;
 import licenta.airQuality.entities.Measurement;
 import licenta.airQuality.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -155,7 +156,7 @@ public class FirebaseService {
         }
     }
 
-    public double airQualityIndex(String sensorUUID) throws ExecutionException, InterruptedException {
+    public AirQualityIndexWithType airQualityIndex(String sensorUUID) throws ExecutionException, InterruptedException {
 
       Measurement mPM25 = getLastMeasurementByType(sensorUUID, "PM25");
       Measurement mPM10 = getLastMeasurementByType(sensorUUID, "PM10");
@@ -163,21 +164,35 @@ public class FirebaseService {
       Measurement mO3 = getLastMeasurementByType(sensorUUID, "O3");
       Measurement mSO2 = getLastMeasurementByType(sensorUUID, "SO2");
 
-      double maxValueAQI =0.00;
+      double maxValueAQI = Double.NEGATIVE_INFINITY;
+      String type ="";
 
       if(mPM10!= null && mNO2!=null) {
       maxValueAQI = Math.max(mPM10.getValue(),mNO2.getValue() );
+      type = (mPM10.getValue() > mNO2.getValue()) ? mPM10.getType() : mNO2.getType();
 
       if (mPM25!= null) {
-              maxValueAQI = Math.max(maxValueAQI, mPM25.getValue());
+
+          if (mPM25.getValue() > maxValueAQI) {
+              maxValueAQI = mPM25.getValue();
+              type = mPM25.getType();
+          }
       }
 
       if (mO3!= null) {
-              maxValueAQI = Math.max(maxValueAQI, mO3.getValue());
+
+          if (mO3.getValue() > maxValueAQI) {
+              maxValueAQI = mO3.getValue();
+              type = mO3.getType();
+          }
       }
 
       if (mSO2!= null) {
-              maxValueAQI = Math.max(maxValueAQI, mSO2.getValue());
+
+          if (mSO2.getValue() > maxValueAQI) {
+              maxValueAQI = mSO2.getValue();
+              type = mSO2.getType();
+          }
       }
 
       }
@@ -185,8 +200,7 @@ public class FirebaseService {
           log.info("Insufficient data - min pollutants for performing AQI are: PM10 and NO2");
       }
 
-      return maxValueAQI;
+    return new AirQualityIndexWithType(maxValueAQI, type);
+
     }
-
-
 }
