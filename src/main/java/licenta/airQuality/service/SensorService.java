@@ -6,18 +6,14 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import io.netty.util.internal.StringUtil;
 import licenta.airQuality.converters.Converter;
+import licenta.airQuality.dto.GeoPointDTO;
 import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.Sensor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Objects.isNull;
@@ -33,6 +29,7 @@ public class SensorService {
     public SensorService(Converter<SensorDTO, Sensor> entityConverter, Converter<Sensor, SensorDTO> dtoConverter) {
         this.entityConverter = entityConverter;
         this.dtoConverter = dtoConverter;
+
     }
 
     public SensorDTO createSensor(SensorDTO sensorDTO) throws ExecutionException, InterruptedException {
@@ -102,9 +99,6 @@ public class SensorService {
 
     public SensorDTO updateSensor(SensorDTO sensorDTO) throws ExecutionException, InterruptedException {
         final Sensor newSensor = entityConverter.convert(sensorDTO);
-//        ApiFuture<WriteResult> sensorDocument = getFirestore().collection(SENSOR_COLLECTION)
-//                .document(sensorDTO.getUuid());
-//                .set(sensor);
 
         final DocumentReference documentReference = getFirestore()
                 .collection(SENSOR_COLLECTION)
@@ -123,6 +117,17 @@ public class SensorService {
         }
 
         newSensor.setCreationDate(oldSensor.getCreationDate());
+       // newSensor.setLocation(oldSensor.getLocation());
+        if (newSensor.getName() == null) {
+            newSensor.setName(oldSensor.getName());
+        }
+        if (newSensor.getActive() == null) {
+            newSensor.setActive(oldSensor.getActive());
+        }
+        //if (isNull(newSensor.getLocation().getLatitude()) || isNull(newSensor.getLocation().getLongitude())) {
+       //     GeoPoint geoPoint = new GeoPoint(oldSensor.getLocation().getLatitude(), oldSensor.getLocation().getLongitude());
+       //     newSensor.setLocation(geoPoint);
+      //  }
         final ApiFuture<WriteResult> writeResultApiFuture = documentReference.set(newSensor);
 
         final String timestamp = writeResultApiFuture.get().getUpdateTime().toString();
@@ -131,6 +136,8 @@ public class SensorService {
 
         return dtoConverter.convert(newSensor);
     }
+
+
 
     public String deleteSensor(final String sensorUUID) throws ExecutionException, InterruptedException {
         if(StringUtil.isNullOrEmpty(sensorUUID)) {

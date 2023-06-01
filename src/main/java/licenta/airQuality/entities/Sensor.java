@@ -16,7 +16,7 @@ public class Sensor {
    public static final String Location_FIELD_NAME = "location";
     public static final String Name_FIELD_NAME = "name";
     public static final String UUID_FIELD_NAME = "uuid";
-    public static final String LocalDate_FIELD_NAME = "lastUpdate";
+    public static final String CreationDate_FIELD_NAME = "creationDate";
 
     @NotNull
     private Boolean active;

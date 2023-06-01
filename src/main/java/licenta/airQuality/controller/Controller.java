@@ -1,18 +1,19 @@
 package licenta.airQuality.controller;
 
+import jakarta.validation.Valid;
 import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.AirQualityIndexWithType;
+import licenta.airQuality.entities.Sensor;
 import licenta.airQuality.generators.MeasurementsGenerator;
 import licenta.airQuality.entities.Measurement;
 import licenta.airQuality.service.SensorService;
-import licenta.airQuality.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import licenta.airQuality.service.FirebaseService;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -72,8 +73,8 @@ public class Controller {
         return sensorService.getSensor(UUID);
     }
 
-    @PutMapping("/updateSensor") // admin, ca sa ii schimb locatia, active/inactive
-    public Response updateSensor(@RequestBody SensorDTO sensor) throws ExecutionException, InterruptedException {
+    @PutMapping("/updateSensor")
+    public Response updateSensor( @RequestBody SensorDTO sensor) throws ExecutionException, InterruptedException {
         final SensorDTO sensorDTO = sensorService.updateSensor(sensor);
 
         return Response.builder()
