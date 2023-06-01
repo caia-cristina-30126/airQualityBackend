@@ -51,9 +51,9 @@ public class MeasurementsGenerator {
     public void generate() {
         log.info("Start generating measurements");
 
-        final GeoPointDTO geoPoint = new GeoPointDTO(Location.MARASTI_CJ_RO.getLatitude(), Location.MARASTI_CJ_RO.getLongitude());
+        final GeoPointDTO geoPoint = new GeoPointDTO(Location.ZORILOR_CJ_RO.getLatitude(), Location.ZORILOR_CJ_RO.getLongitude());
         final String uuid = UUID.randomUUID().toString();
-        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "MARASTI_CJ_RO", LocalDate.now());
+        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "ZORILOR_CJ_RO", LocalDate.now());
         try {
             sensorService.createSensor(sensor);
         } catch (ExecutionException | InterruptedException e) {

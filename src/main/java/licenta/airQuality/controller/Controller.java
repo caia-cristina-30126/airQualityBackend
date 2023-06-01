@@ -13,7 +13,6 @@ import licenta.airQuality.service.FirebaseService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.security.Principal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -42,11 +41,6 @@ public class Controller {
         this.firebaseService = firebaseService;
         this.sensorService = sensorService;
         this.measurementsGenerator = measurementsGenerator;
-    }
-
-    @GetMapping( "/testAuth")
-    public String testAuth(Principal principal) {
-        return principal.getName();
     }
 
     @GetMapping("/home")
