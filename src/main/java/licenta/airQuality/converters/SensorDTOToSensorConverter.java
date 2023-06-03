@@ -35,6 +35,7 @@ public class SensorDTOToSensorConverter implements Converter<SensorDTO, Sensor> 
         target.setUuid(source.getUuid());
         target.setActive(source.getActive());
         target.setName(source.getName());
+        target.setMeasurementsType(source.getMeasurementsType());
 
         final GeoPoint location = new GeoPoint(source.getLocation().getLatitude(), source.getLocation().getLongitude());
         target.setLocation(location);

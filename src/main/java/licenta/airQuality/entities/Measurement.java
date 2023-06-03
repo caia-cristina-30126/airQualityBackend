@@ -3,13 +3,10 @@ package licenta.airQuality.entities;
 
 import com.google.cloud.Timestamp;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import licenta.airQuality.constants.MeasurementUnit;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 
 @Data
@@ -25,12 +22,11 @@ public class Measurement {
     private MeasurementUnit unit;
     @NotNull
     private Double value;
-    @NotNull
+
     private Timestamp instantTime;
     @NotNull
     private String type;
 
-   // private Date date;
 
     @Override
     public String toString() {

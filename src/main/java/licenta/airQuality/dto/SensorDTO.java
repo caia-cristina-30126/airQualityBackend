@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,6 +19,6 @@ public class SensorDTO {
     private GeoPointDTO location;
     private String name;
     private LocalDate creationDate;
-
-
+    private List<String> measurementsType;
+    
 }

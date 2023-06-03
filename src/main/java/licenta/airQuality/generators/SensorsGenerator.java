@@ -6,6 +6,8 @@ import licenta.airQuality.service.SensorService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -24,7 +26,11 @@ public class SensorsGenerator {
                               final Boolean isActive) {
 
         final GeoPointDTO geoPoint = new GeoPointDTO(locationLat, locationLong);
-        final SensorDTO sensor = new SensorDTO(isActive, null, geoPoint, sensorName, LocalDate.now());
+        final List<String> measurementsType = new ArrayList<>();
+        measurementsType.add("NO2");
+        measurementsType.add("O2");
+        measurementsType.add("temp");
+        final SensorDTO sensor = new SensorDTO(isActive, null, geoPoint, sensorName, LocalDate.now(), measurementsType);
 
         try {
             sensorService.createSensor(sensor);

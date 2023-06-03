@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -53,7 +55,11 @@ public class MeasurementsGenerator {
 
         final GeoPointDTO geoPoint = new GeoPointDTO(Location.ZORILOR_CJ_RO.getLatitude(), Location.ZORILOR_CJ_RO.getLongitude());
         final String uuid = UUID.randomUUID().toString();
-        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "ZORILOR_CJ_RO", LocalDate.now());
+        final List<String> measurementsType = new ArrayList<>();
+        measurementsType.add("NO2");
+        measurementsType.add("O2");
+        measurementsType.add("temp");
+        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "ZORILOR_CJ_RO", LocalDate.now(), measurementsType);
         try {
             sensorService.createSensor(sensor);
         } catch (ExecutionException | InterruptedException e) {

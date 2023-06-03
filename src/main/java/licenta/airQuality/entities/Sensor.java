@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,5 +26,5 @@ public class Sensor {
     private String name;
     private String uuid;
     private Timestamp creationDate;
-
+    private List<String> measurementsType;
 }

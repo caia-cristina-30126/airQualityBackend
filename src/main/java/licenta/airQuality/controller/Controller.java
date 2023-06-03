@@ -1,15 +1,12 @@
 package licenta.airQuality.controller;
 
-import jakarta.validation.Valid;
+import com.google.cloud.Timestamp;
 import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.AirQualityIndexWithType;
-import licenta.airQuality.entities.Sensor;
 import licenta.airQuality.generators.MeasurementsGenerator;
 import licenta.airQuality.entities.Measurement;
 import licenta.airQuality.service.SensorService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import licenta.airQuality.service.FirebaseService;
@@ -69,7 +66,7 @@ public class Controller {
     }
 
     @GetMapping("/getSensorByUUID") // pagina separata
-    public SensorDTO getSensorByUUID(@RequestHeader String UUID) throws ExecutionException, InterruptedException {
+    public SensorDTO getSensorByUUID(@RequestHeader String UUID) {
         return sensorService.getSensor(UUID);
     }
 
@@ -102,9 +99,9 @@ public class Controller {
                 .build();
     }
 
-    @PostMapping("/sensor/measurement")
+    @PostMapping("/sensor/createMeasurement")
     public String createMeasurementForSpecificSensor(@RequestHeader String sensorUUID, @RequestBody @Validated Measurement measurement) throws ExecutionException, InterruptedException {
-
+        measurement.setInstantTime(Timestamp.now());
         return firebaseService.createMeasurementForSpecificSensor(sensorUUID, measurement);
     }
 

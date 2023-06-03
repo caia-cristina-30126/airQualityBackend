@@ -124,6 +124,9 @@ public class SensorService {
         if (newSensor.getActive() == null) {
             newSensor.setActive(oldSensor.getActive());
         }
+        if(newSensor.getMeasurementsType() == null) {
+            newSensor.setMeasurementsType(oldSensor.getMeasurementsType());
+        }
         //if (isNull(newSensor.getLocation().getLatitude()) || isNull(newSensor.getLocation().getLongitude())) {
        //     GeoPoint geoPoint = new GeoPoint(oldSensor.getLocation().getLatitude(), oldSensor.getLocation().getLongitude());
        //     newSensor.setLocation(geoPoint);
