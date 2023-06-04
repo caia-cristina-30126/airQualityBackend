@@ -117,6 +117,7 @@ public class SensorService {
         }
 
         newSensor.setCreationDate(oldSensor.getCreationDate());
+        newSensor.setLocation(oldSensor.getLocation());
        // newSensor.setLocation(oldSensor.getLocation());
         if (newSensor.getName() == null) {
             newSensor.setName(oldSensor.getName());
@@ -127,6 +128,7 @@ public class SensorService {
         if(newSensor.getMeasurementsType() == null) {
             newSensor.setMeasurementsType(oldSensor.getMeasurementsType());
         }
+
         //if (isNull(newSensor.getLocation().getLatitude()) || isNull(newSensor.getLocation().getLongitude())) {
        //     GeoPoint geoPoint = new GeoPoint(oldSensor.getLocation().getLatitude(), oldSensor.getLocation().getLongitude());
        //     newSensor.setLocation(geoPoint);

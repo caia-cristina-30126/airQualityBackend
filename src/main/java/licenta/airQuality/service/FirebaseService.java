@@ -5,24 +5,19 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.database.GenericTypeIndicator;
 import licenta.airQuality.entities.AirQualityIndexWithType;
 import licenta.airQuality.entities.Measurement;
 import licenta.airQuality.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static java.math.RoundingMode.DOWN;
 
 @Slf4j
 @Service
@@ -51,14 +46,27 @@ public class FirebaseService {
         final String documentMeasurementName = measurement.getType() + DASH + measurement.getInstantTime().getSeconds();
 
         log.info("Saving measurement" + measurement);
-        ApiFuture<WriteResult> collectionApiFuture = sensorDocumentRef(sensorUUID)
-                .collection(COLLECTION_MEASUREMENTS_NAME)
-                .document(documentMeasurementName)
-                .create(measurement);
+        DocumentSnapshot sensorDocumentSnapshot = sensorDocumentRef(sensorUUID).get().get();
+        if(!sensorDocumentSnapshot.exists()) {
+            log.warn(String.format("Sensor with UUID: %s not found!", sensorUUID));
+            return null;
+        }
 
-        return collectionApiFuture.get()
-                .getUpdateTime()
-                .toString(); // when the collection is being created
+
+            List<String> measurementsType = (List<String>) sensorDocumentSnapshot.get("measurementsType");
+        if(! measurementsType.contains(measurement.getType())) {
+            log.warn(String.format("Measurement type: %s not found in Sensor measurements type!", measurement.getType()));
+            return null; }
+
+
+                ApiFuture<WriteResult> collectionApiFuture = sensorDocumentRef(sensorUUID)
+                        .collection(COLLECTION_MEASUREMENTS_NAME)
+                        .document(documentMeasurementName)
+                        .create(measurement);
+
+                return collectionApiFuture.get()
+                        .getUpdateTime()
+                        .toString();  // when the collection is being created
     }
 
     public Measurement getLastMeasurementByType(String sensorUUID, String measurementType) throws ExecutionException, InterruptedException {
