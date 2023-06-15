@@ -1,9 +1,13 @@
 package licenta.airQuality.utils;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
 import licenta.airQuality.entities.Measurement;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 
 public class CommonUtils {
     public static double convertPpbToMicrograms(Measurement measurement) {
@@ -33,5 +37,12 @@ public class CommonUtils {
         return value.intValue();
 //      return (int) Math.round(value);
 
+    }
+
+    public void setCustomClaims(String uid, Map<String, Object> customClaims) throws FirebaseAuthException {
+        UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
+        String firebaseUid = userRecord.getUid();
+
+        FirebaseAuth.getInstance().setCustomUserClaims(firebaseUid, customClaims);
     }
 }

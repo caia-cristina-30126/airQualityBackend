@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseToken;
 import licenta.airQuality.auth.TokenValidationFirebase;
 import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.AirQualityIndexWithType;
+import licenta.airQuality.entities.User;
 import licenta.airQuality.generators.MeasurementsGenerator;
 import licenta.airQuality.entities.Measurement;
 import licenta.airQuality.service.SensorService;
@@ -44,10 +45,11 @@ public class Controller {
         this.measurementsGenerator = measurementsGenerator;
     }
 @GetMapping("/securedResources")
-public String getSecuredResources(@RequestHeader String idToken) {
+public String getSecuredResources(@RequestHeader String idToken ) {
     try {
         FirebaseToken firebaseToken = TokenValidationFirebase.validateToken(idToken);
         String userId = firebaseToken.getUid();
+
         return userId;
     } catch (FirebaseAuthException e) {
         return "Errror: " + e.getMessage();
@@ -56,11 +58,11 @@ public String getSecuredResources(@RequestHeader String idToken) {
     @GetMapping("/home")
     public Response index(@RequestHeader String idToken) {
         try {
-
             FirebaseToken firebaseToken = TokenValidationFirebase.validateToken(idToken);
-
+            String userRole = (String) firebaseToken.getClaims().get("role");
+            log.info("userRole" + userRole);
             String userId = firebaseToken.getUid();
-
+            log.info("userID" + userId);
             return Response.builder()
                     .message("Helloooo")
                     .build();
@@ -72,20 +74,54 @@ public String getSecuredResources(@RequestHeader String idToken) {
         }
     }
 
-    //sensors collection
-    @PostMapping("/createSensor") // admin
-    public Response createSensor(@RequestBody @Validated SensorDTO sensor) throws ExecutionException, InterruptedException {
-
-        final SensorDTO sensorDTO = sensorService.createSensor(sensor);
-
+    // users collection
+    @PostMapping("/createUser")
+    public Response createUser(@RequestBody @Validated User user) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        firebaseService.createUser(user);
         return Response.builder()
-                .message(String.format("Successfully with UUID: %s created!", sensorDTO.getUuid()))
+                .message(String.format("Successfully with UUID: %s created!", user.getUuid()))
                 .build();
     }
 
+    @GetMapping("/getUser")
+    public User getUserByUUID(@RequestHeader String UUID) throws ExecutionException, InterruptedException {
+        return firebaseService.getUserByUUID(UUID);
+    }
+
+    @PutMapping("/updateUser")
+    public Response updateUser( @RequestBody User user) throws ExecutionException, InterruptedException {
+        firebaseService.updateUser(user);
+        return Response.builder()
+                .message(String.format("Successfully user with UUID: %s updated!", user.getUuid()))
+                .build();
+
+    }
+    //sensors collection
+    @PostMapping("/createSensor") // admin
+    public Response createSensor(@RequestBody @Validated SensorDTO sensor, @RequestHeader String idToken) throws ExecutionException, InterruptedException {
+        try {
+            TokenValidationFirebase.validateToken(idToken);
+            final SensorDTO sensorDTO = sensorService.createSensor(sensor);
+            return Response.builder()
+                    .message(String.format("Successfully with UUID: %s created!", sensorDTO.getUuid()))
+                    .build();
+        } catch (FirebaseAuthException e) {
+            return Response.builder()
+                    .message("Error: " + e.getMessage())
+                    .build();
+        }
+    }
+
+
+
     @GetMapping("/sensor/list") // pe harta
-    public List<SensorDTO> getSensors() throws ExecutionException, InterruptedException {
-        return sensorService.getAllSensors();
+    public List<SensorDTO> getSensors(@RequestHeader String idToken) throws ExecutionException, InterruptedException {
+        try {
+            TokenValidationFirebase.validateToken(idToken);
+            return sensorService.getAllSensors();
+        } catch (FirebaseAuthException e) {
+            return null;
+        }
     }
 
     @GetMapping("/getSensorByUUID") // pagina separata

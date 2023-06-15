@@ -4,19 +4,31 @@ import com.google.api.core.ApiFuture;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.GenericTypeIndicator;
+import io.netty.util.internal.StringUtil;
+import licenta.airQuality.auth.TokenValidationFirebase;
+import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.AirQualityIndexWithType;
 import licenta.airQuality.entities.Measurement;
+import licenta.airQuality.entities.Sensor;
+import licenta.airQuality.entities.User;
 import licenta.airQuality.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+
+import static com.google.firebase.cloud.FirestoreClient.getFirestore;
+import static java.util.Objects.isNull;
 
 
 @Slf4j
@@ -26,7 +38,7 @@ public class FirebaseService {
     private final String COLLECTION_MEASUREMENTS_NAME = "measurements";
 
     private CollectionReference sensorsCollectionRef() {
-        return FirestoreClient.getFirestore().collection("sensors");
+        return getFirestore().collection("sensors");
     }
 
     private DocumentReference sensorDocumentRef(final String documentId) {
@@ -40,6 +52,78 @@ public class FirebaseService {
        return getDocumentSnapshot(sensorUUID).get();
     }
 
+    // users collection
+    public User createUser(User user) throws FirebaseAuthException {
+        final ZonedDateTime zonedDateTime = ZonedDateTime.now();
+        final UUID uuid = UUID.nameUUIDFromBytes(zonedDateTime.toString().getBytes());
+        user.setUuid(uuid.toString());
+        getFirestore().collection("users")
+                .document(user.getUuid())
+                .create(user);
+
+        return user;
+    }
+
+    public User getUserByUUID(String userUUID) {
+        if(StringUtil.isNullOrEmpty(userUUID)) {
+            throw new IllegalArgumentException("User UUID is null or empty!");
+        }
+        ApiFuture<DocumentSnapshot>  apiFuture = getFirestore().collection("users")
+                .document(userUUID)
+                .get();
+        DocumentSnapshot userDocumentSnapshot;
+        try {
+            userDocumentSnapshot = apiFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        final User user;
+        if(userDocumentSnapshot.exists()) {
+            user = userDocumentSnapshot.toObject(User.class);
+            return user;
+        } else {
+            log.warn("User not found!");
+            return null;
+        }
+    }
+
+    public User updateUser(User user) throws ExecutionException, InterruptedException {
+
+
+        final DocumentReference documentReference = getFirestore()
+                .collection("users")
+                .document(user.getUuid());
+
+        final ApiFuture<DocumentSnapshot> apiFuture = documentReference.get();
+        if(!apiFuture.get().exists()) {
+            log.warn(String.format("User with UUID: %s not found!", user.getUuid()));
+            return null;
+        }
+
+        final User oldUser = documentReference.get().get().toObject(User.class);
+        if(isNull(oldUser)) {
+            log.warn(String.format("Sensor with UUID: %s not found!", user.getUuid()));
+            return null;
+        }
+
+        user.setRole(oldUser.getRole());
+       user.setEmail(oldUser.getEmail());
+
+        if (user.getFirstName() == null) {
+            user.setFirstName(oldUser.getFirstName());
+        }
+        if (user.getLastName() == null) {
+            user.setLastName(oldUser.getLastName());
+        }
+
+        final ApiFuture<WriteResult> writeResultApiFuture = documentReference.set(user);
+
+        final String timestamp = writeResultApiFuture.get().getUpdateTime().toString();
+        final String logMessage = String.format("[%s] User with uuid: %s was successfully updated!", timestamp, user.getUuid());
+        log.info(logMessage);
+
+        return user;
+    }
 
     //measurements collection
     public String createMeasurementForSpecificSensor(String sensorUUID, Measurement measurement) throws ExecutionException, InterruptedException {
