@@ -1,6 +1,9 @@
 package licenta.airQuality.controller;
 
 import com.google.cloud.Timestamp;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
+import licenta.airQuality.auth.TokenValidationFirebase;
 import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.AirQualityIndexWithType;
 import licenta.airQuality.generators.MeasurementsGenerator;
@@ -40,13 +43,33 @@ public class Controller {
         this.sensorService = sensorService;
         this.measurementsGenerator = measurementsGenerator;
     }
-
+@GetMapping("/securedResources")
+public String getSecuredResources(@RequestHeader String idToken) {
+    try {
+        FirebaseToken firebaseToken = TokenValidationFirebase.validateToken(idToken);
+        String userId = firebaseToken.getUid();
+        return userId;
+    } catch (FirebaseAuthException e) {
+        return "Errror: " + e.getMessage();
+    }
+}
     @GetMapping("/home")
-    public Response index() {
+    public Response index(@RequestHeader String idToken) {
+        try {
 
-        return Response.builder()
-                .message("Helloooo")
-                .build();
+            FirebaseToken firebaseToken = TokenValidationFirebase.validateToken(idToken);
+
+            String userId = firebaseToken.getUid();
+
+            return Response.builder()
+                    .message("Helloooo")
+                    .build();
+        } catch (FirebaseAuthException e) {
+
+            return Response.builder()
+                    .message("Error: " + e.getMessage())
+                    .build();
+        }
     }
 
     //sensors collection
