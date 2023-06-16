@@ -79,20 +79,20 @@ public String getSecuredResources(@RequestHeader String idToken ) {
     public Response createUser(@RequestBody @Validated User user) throws ExecutionException, InterruptedException, FirebaseAuthException {
         firebaseService.createUser(user);
         return Response.builder()
-                .message(String.format("Successfully with UUID: %s created!", user.getUuid()))
+                .message(String.format("Successfully with email: %s created!", user.getEmail()))
                 .build();
     }
 
     @GetMapping("/getUser")
-    public User getUserByUUID(@RequestHeader String UUID) throws ExecutionException, InterruptedException {
-        return firebaseService.getUserByUUID(UUID);
+    public User getUserByEmail(@RequestHeader String email) throws ExecutionException, InterruptedException {
+        return firebaseService.getUserByEmail(email);
     }
 
     @PutMapping("/updateUser")
-    public Response updateUser( @RequestBody User user) throws ExecutionException, InterruptedException {
+    public Response updateUser(@RequestBody User user) throws ExecutionException, InterruptedException {
         firebaseService.updateUser(user);
         return Response.builder()
-                .message(String.format("Successfully user with UUID: %s updated!", user.getUuid()))
+                .message(String.format("Successfully user with email: %s updated!", user.getEmail()))
                 .build();
 
     }
@@ -160,7 +160,7 @@ public String getSecuredResources(@RequestHeader String idToken ) {
 
     @PostMapping("/sensor/createMeasurement")
     public String createMeasurementForSpecificSensor(@RequestHeader String sensorUUID, @RequestBody @Validated Measurement measurement) throws ExecutionException, InterruptedException {
-        measurement.setInstantTime(Timestamp.now());
+      //  measurement.setInstantTime(Timestamp.now());
         return firebaseService.createMeasurementForSpecificSensor(sensorUUID, measurement);
     }
 
@@ -175,9 +175,9 @@ public String getSecuredResources(@RequestHeader String idToken ) {
         return firebaseService.getMeasurementsBetweenDates(sensorUUID, measurementType, startDate, endDate);
     }
 
-    @GetMapping("/sensor/measurement/lastWeek")
+    @GetMapping("/sensor/measurement/lastHoursMeasurements")
     public List<Measurement> getMeasurementsOfLastWeek(@RequestHeader String sensorUUID, @RequestHeader String measurementType) throws ExecutionException, InterruptedException {
-        return firebaseService.getMeasurementsOfLastWeek(sensorUUID, measurementType);
+        return firebaseService.getLastMeasurements(sensorUUID, measurementType);
     }
 
     @GetMapping("/aqi")

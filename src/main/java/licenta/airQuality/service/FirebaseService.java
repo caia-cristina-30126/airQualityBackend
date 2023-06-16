@@ -53,23 +53,20 @@ public class FirebaseService {
     }
 
     // users collection
-    public User createUser(User user) throws FirebaseAuthException {
-        final ZonedDateTime zonedDateTime = ZonedDateTime.now();
-        final UUID uuid = UUID.nameUUIDFromBytes(zonedDateTime.toString().getBytes());
-        user.setUuid(uuid.toString());
+    public User createUser(User user) {
         getFirestore().collection("users")
-                .document(user.getUuid())
+                .document(user.getEmail())
                 .create(user);
-
         return user;
     }
 
-    public User getUserByUUID(String userUUID) {
-        if(StringUtil.isNullOrEmpty(userUUID)) {
-            throw new IllegalArgumentException("User UUID is null or empty!");
+
+    public User getUserByEmail(String email) {
+        if(StringUtil.isNullOrEmpty(email)) {
+            throw new IllegalArgumentException("User email is null or empty!");
         }
         ApiFuture<DocumentSnapshot>  apiFuture = getFirestore().collection("users")
-                .document(userUUID)
+                .document(email)
                 .get();
         DocumentSnapshot userDocumentSnapshot;
         try {
@@ -92,22 +89,21 @@ public class FirebaseService {
 
         final DocumentReference documentReference = getFirestore()
                 .collection("users")
-                .document(user.getUuid());
+                .document(user.getEmail());
 
         final ApiFuture<DocumentSnapshot> apiFuture = documentReference.get();
         if(!apiFuture.get().exists()) {
-            log.warn(String.format("User with UUID: %s not found!", user.getUuid()));
+            log.warn(String.format("User with email: %s not found!", user.getEmail()));
             return null;
         }
 
         final User oldUser = documentReference.get().get().toObject(User.class);
         if(isNull(oldUser)) {
-            log.warn(String.format("Sensor with UUID: %s not found!", user.getUuid()));
+            log.warn(String.format("Sensor with email: %s not found!", user.getEmail()));
             return null;
         }
-
         user.setRole(oldUser.getRole());
-       user.setEmail(oldUser.getEmail());
+        user.setEmail(oldUser.getEmail());
 
         if (user.getFirstName() == null) {
             user.setFirstName(oldUser.getFirstName());
@@ -119,7 +115,7 @@ public class FirebaseService {
         final ApiFuture<WriteResult> writeResultApiFuture = documentReference.set(user);
 
         final String timestamp = writeResultApiFuture.get().getUpdateTime().toString();
-        final String logMessage = String.format("[%s] User with uuid: %s was successfully updated!", timestamp, user.getUuid());
+        final String logMessage = String.format("[%s] User with email: %s was successfully updated!", timestamp, user.getEmail());
         log.info(logMessage);
 
         return user;
@@ -135,14 +131,10 @@ public class FirebaseService {
             log.warn(String.format("Sensor with UUID: %s not found!", sensorUUID));
             return null;
         }
-
-
             List<String> measurementsType = (List<String>) sensorDocumentSnapshot.get("measurementsType");
         if(! measurementsType.contains(measurement.getType())) {
             log.warn(String.format("Measurement type: %s not found in Sensor measurements type!", measurement.getType()));
             return null; }
-
-
                 ApiFuture<WriteResult> collectionApiFuture = sensorDocumentRef(sensorUUID)
                         .collection(COLLECTION_MEASUREMENTS_NAME)
                         .document(documentMeasurementName)
@@ -154,15 +146,11 @@ public class FirebaseService {
     }
 
     public Measurement getLastMeasurementByType(String sensorUUID, String measurementType) throws ExecutionException, InterruptedException {
-
         DocumentSnapshot sensorDocumentSnapshot = sensorDocumentSnapshot(sensorUUID);
-
         Measurement measurement;
-
         if (sensorDocumentSnapshot.exists() && sensorDocumentSnapshot.getBoolean("active")) {
             CollectionReference measurementsCollectionRef = sensorDocumentRef(sensorUUID)
                     .collection(COLLECTION_MEASUREMENTS_NAME);
-
            Query query = measurementsCollectionRef.whereEqualTo("type", measurementType)
                     .orderBy("instantTime", Query.Direction.DESCENDING)
                     .limit(1);
@@ -187,7 +175,6 @@ public class FirebaseService {
 
         DocumentSnapshot sensorDocumentSnapshot = getDocumentSnapshot(sensorUUID).get();
 
-
         if (sensorDocumentSnapshot.exists() && sensorDocumentSnapshot.getBoolean("active")) {
             CollectionReference measurementsCollectionRef = sensorDocumentRef(sensorUUID).collection(COLLECTION_MEASUREMENTS_NAME);
             Instant instantStartDate = Instant.ofEpochSecond(startDate);
@@ -209,7 +196,6 @@ public class FirebaseService {
             }
             log.info(measurementsBetweenDatesList.toString());
             return measurementsBetweenDatesList;
-
         }
         else {
             log.info("Sensor is inactive!");
@@ -217,7 +203,7 @@ public class FirebaseService {
         }
     }
 
-    public List<Measurement> getMeasurementsOfLastWeek(String sensorUUID, String measurementType) throws ExecutionException, InterruptedException {
+    public List<Measurement> getLastMeasurements(String sensorUUID, String measurementType) throws ExecutionException, InterruptedException {
 
         DocumentSnapshot sensorDocumentSnapshot = getDocumentSnapshot(sensorUUID).get();
 
@@ -227,7 +213,7 @@ public class FirebaseService {
             Query query = measurementsCollectionRef
                     .whereEqualTo("type", measurementType)
                     .orderBy("instantTime", Query.Direction.DESCENDING)
-                    .limit(7);
+                    .limit(12);
 
             QuerySnapshot querySnapshot = query.get().get();
 
