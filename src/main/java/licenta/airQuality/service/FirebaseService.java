@@ -20,6 +20,7 @@ import licenta.airQuality.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -234,14 +235,77 @@ public class FirebaseService {
             return null;
         }
     }
+    public List<Measurement> getLastMeasurementOfLastHour(@RequestHeader String sensorUUID) throws ExecutionException, InterruptedException {
+        List<String> measurementsList = new ArrayList<>();
+        measurementsList.add("PM25");
+        measurementsList.add("PM10");
+        measurementsList.add("NO2");
+        measurementsList.add("O3");
+        measurementsList.add("SO2");
+        measurementsList.add("temp");
+        measurementsList.add("humidity");
+        measurementsList.add("pressure");
+        List<Measurement> measurementObjectsList = new ArrayList<>();
+        for(String measurement: measurementsList) {
+            if(measurement!=null){
+                measurementObjectsList.add(getLastMeasurementByType(sensorUUID, measurement));
+            }
+        }
+
+        long latestTimestamp = 0;
+
+        for(Measurement measurementLastHour: measurementObjectsList) {
+            if(measurementLastHour != null ) {
+                long seconds =  (long) measurementLastHour.getInstantTime().getSeconds();
+                int nanos = (int) measurementLastHour.getInstantTime().getNanos();
+                long instantTime = seconds * 1000000000L + nanos;
+                if (instantTime > latestTimestamp) {
+                    latestTimestamp = instantTime;
+                }
+            }
+        }
+        List<Measurement> measurementsWithLatestTimestamp = new ArrayList<>();
+        for (Measurement measurement : measurementObjectsList) {
+            if(measurement!=null ) {
+                long seconds = (long) measurement.getInstantTime().getSeconds();
+                int nanos = (int) measurement.getInstantTime().getNanos();
+                long instantTime = seconds * 1000000000L + nanos;
+
+                if (instantTime == latestTimestamp) {
+                    measurementsWithLatestTimestamp.add(measurement);
+                }
+            }
+        }
+
+        return measurementsWithLatestTimestamp;
+    }
 
     public AirQualityIndexWithType airQualityIndex(String sensorUUID) throws ExecutionException, InterruptedException {
+        Measurement mPM25 = null;
+      Measurement mPM10 = null;
+      Measurement mNO2 = null;
+      Measurement mO3 = null;
+      Measurement mSO2 = null;
 
-      Measurement mPM25 = getLastMeasurementByType(sensorUUID, "PM25");
-      Measurement mPM10 = getLastMeasurementByType(sensorUUID, "PM10");
-      Measurement mNO2 = getLastMeasurementByType(sensorUUID, "NO2");
-      Measurement mO3 = getLastMeasurementByType(sensorUUID, "O3");
-      Measurement mSO2 = getLastMeasurementByType(sensorUUID, "SO2");
+      for(Measurement measurement : getLastMeasurementOfLastHour(sensorUUID)){
+          if(measurement!=null){
+          if(measurement.getType().equals("PM25")){
+              mPM25 = measurement;
+          }
+          if(measurement.getType().equals("PM10")){
+              mPM10 = measurement;
+          }
+          if(measurement.getType().equals("NO2")){
+               mNO2 = measurement;
+          }
+          if(measurement.getType().equals("O3")){
+             mO3 = measurement;
+          }
+          if(measurement.getType().equals("SO2")){
+            mSO2 = measurement;
+          }}
+
+      }
 
       double maxValueAQI = Double.NEGATIVE_INFINITY;
       String type ="";
