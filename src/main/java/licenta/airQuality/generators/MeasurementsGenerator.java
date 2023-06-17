@@ -58,7 +58,7 @@ public class MeasurementsGenerator {
 
     public void generate() {
         log.info("Start generating measurements");
-        final GeoPointDTO geoPoint = new GeoPointDTO(Location.ZORILOR_CJ_RO.getLatitude(), Location.ZORILOR_CJ_RO.getLongitude());
+        final GeoPointDTO geoPoint = new GeoPointDTO(Location.MANASTUR_CJ_RO.getLatitude(), Location.MANASTUR_CJ_RO.getLongitude());
         final String uuid = UUID.randomUUID().toString();
         final List<String> measurementsType = new ArrayList<>();
         measurementsType.add("PM25");
@@ -69,7 +69,7 @@ public class MeasurementsGenerator {
         measurementsType.add("temp");
         measurementsType.add("humidity");
         measurementsType.add("pressure");
-        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "ZORILOR_CJ_RO", LocalDate.now(), measurementsType);
+        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "MANASTUR_CJ_RO", LocalDate.now(), measurementsType);
         try {
             sensorService.createSensor(sensor);
         } catch (ExecutionException | InterruptedException e) {
@@ -108,14 +108,14 @@ public class MeasurementsGenerator {
             final Measurement measurementPressure = new Measurement(MeasurementUnit.HECTOPASCALS, pressureValue, timestamp, pressureType);
 
             try {
-                firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPM25);
+               // firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPM25);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPM10);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementNO2);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementO3);
-                firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementSO2);
-                firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementTemp);
+                //firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementSO2);
+                //firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementTemp);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementHumidity);
-                firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPressure);
+               // firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPressure);
                 log.info("Measurement successfully saved" );
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);

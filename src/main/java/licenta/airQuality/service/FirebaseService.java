@@ -171,6 +171,7 @@ public class FirebaseService {
         }
     }
 
+
     public List<Measurement> getMeasurementsBetweenDates(String sensorUUID, String measurementType, Long startDate, Long endDate) throws ExecutionException, InterruptedException, ParseException {
 
         DocumentSnapshot sensorDocumentSnapshot = getDocumentSnapshot(sensorUUID).get();

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import licenta.airQuality.service.FirebaseService;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -168,6 +169,51 @@ public String getSecuredResources(@RequestHeader String idToken ) {
     @GetMapping("/sensor/measurement/last") // done
     public Measurement getLastMeasurementByTypeIfActive(@RequestHeader String sensorUUID, @RequestHeader String measurementType) throws ExecutionException, InterruptedException {
         return firebaseService.getLastMeasurementByType(sensorUUID, measurementType);
+    }
+    @GetMapping("/sensor/measurement/lastestTimestamp") // done
+    public List<Measurement> getLastMeasurementOfLastHour(@RequestHeader String sensorUUID) throws ExecutionException, InterruptedException {
+        List<String> measurementsList = new ArrayList<>();
+        measurementsList.add("PM25");
+        measurementsList.add("PM10");
+        measurementsList.add("NO2");
+        measurementsList.add("O3");
+        measurementsList.add("SO2");
+        measurementsList.add("temp");
+        measurementsList.add("humidity");
+        measurementsList.add("pressure");
+        List<Measurement> measurementObjectsList = new ArrayList<>();
+        for(String measurement: measurementsList) {
+            if(measurement!=null){
+                measurementObjectsList.add(firebaseService.getLastMeasurementByType(sensorUUID, measurement));
+            }
+        }
+
+        long latestTimestamp = 0;
+
+        for(Measurement measurementLastHour: measurementObjectsList) {
+            if(measurementLastHour != null ) {
+                long seconds =  (long) measurementLastHour.getInstantTime().getSeconds();
+                int nanos = (int) measurementLastHour.getInstantTime().getNanos();
+                long instantTime = seconds * 1000000000L + nanos;
+                if (instantTime > latestTimestamp) {
+                    latestTimestamp = instantTime;
+                }
+            }
+        }
+        List<Measurement> measurementsWithLatestTimestamp = new ArrayList<>();
+        for (Measurement measurement : measurementObjectsList) {
+            if(measurement!=null ) {
+                long seconds = (long) measurement.getInstantTime().getSeconds();
+                int nanos = (int) measurement.getInstantTime().getNanos();
+                long instantTime = seconds * 1000000000L + nanos;
+
+                if (instantTime == latestTimestamp) {
+                    measurementsWithLatestTimestamp.add(measurement);
+                }
+            }
+        }
+
+      return measurementsWithLatestTimestamp;
     }
 
     @GetMapping("/sensor/measurement/interval")
