@@ -45,17 +45,6 @@ public class Controller {
         this.sensorService = sensorService;
         this.measurementsGenerator = measurementsGenerator;
     }
-@GetMapping("/securedResources")
-public String getSecuredResources(@RequestHeader String idToken ) {
-    try {
-        FirebaseToken firebaseToken = TokenValidationFirebase.validateToken(idToken);
-        String userId = firebaseToken.getUid();
-
-        return userId;
-    } catch (FirebaseAuthException e) {
-        return "Errror: " + e.getMessage();
-    }
-}
     @GetMapping("/home")
     public Response index(@RequestHeader String idToken) {
         try {
@@ -113,8 +102,6 @@ public String getSecuredResources(@RequestHeader String idToken ) {
         }
     }
 
-
-
     @GetMapping("/sensor/list") // pe harta
     public List<SensorDTO> getSensors(@RequestHeader String idToken) throws ExecutionException, InterruptedException {
         try {
@@ -153,13 +140,12 @@ public String getSecuredResources(@RequestHeader String idToken ) {
     @PostMapping("/generateMeasurements")
     public Response generateMeasurements() {
         measurementsGenerator.generate();
-
         return Response.builder()
                 .message("Success!")
                 .build();
     }
 
-    @PostMapping("/sensor/createMeasurement")
+    @PostMapping("/sensor/createMeasurement") // use this!!
     public String createMeasurementForSpecificSensor(@RequestHeader String sensorUUID, @RequestBody @Validated Measurement measurement) throws ExecutionException, InterruptedException {
       //  measurement.setInstantTime(Timestamp.now());
         return firebaseService.createMeasurementForSpecificSensor(sensorUUID, measurement);
@@ -175,7 +161,7 @@ public String getSecuredResources(@RequestHeader String idToken ) {
      return firebaseService.getLastMeasurementOfLastHour(sensorUUID);
     }
 
-    @GetMapping("/sensor/measurement/interval")
+    @GetMapping("/sensor/measurement/interval") //use this!!
     public List<Measurement> getMeasurementsBetweenDates(@RequestHeader String sensorUUID, @RequestHeader String measurementType, @RequestHeader Long startDate, @RequestHeader Long endDate) throws ExecutionException, InterruptedException, ParseException {
         return firebaseService.getMeasurementsBetweenDates(sensorUUID, measurementType, startDate, endDate);
     }

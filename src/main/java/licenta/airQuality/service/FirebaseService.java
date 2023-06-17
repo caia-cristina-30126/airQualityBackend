@@ -4,27 +4,17 @@ import com.google.api.core.ApiFuture;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
-import com.google.firebase.cloud.FirestoreClient;
-import com.google.firebase.database.GenericTypeIndicator;
 import io.netty.util.internal.StringUtil;
-import licenta.airQuality.auth.TokenValidationFirebase;
-import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.AirQualityIndexWithType;
 import licenta.airQuality.entities.Measurement;
-import licenta.airQuality.entities.Sensor;
 import licenta.airQuality.entities.User;
 import licenta.airQuality.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -172,9 +162,7 @@ public class FirebaseService {
         }
     }
 
-
-    public List<Measurement> getMeasurementsBetweenDates(String sensorUUID, String measurementType, Long startDate, Long endDate) throws ExecutionException, InterruptedException, ParseException {
-
+    public List<Measurement> getMeasurementsBetweenDates(String sensorUUID, String measurementType, Long startDate, Long endDate) throws ExecutionException, InterruptedException {
         DocumentSnapshot sensorDocumentSnapshot = getDocumentSnapshot(sensorUUID).get();
 
         if (sensorDocumentSnapshot.exists() && sensorDocumentSnapshot.getBoolean("active")) {
