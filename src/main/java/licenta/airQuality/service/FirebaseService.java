@@ -93,7 +93,7 @@ public class FirebaseService {
             log.warn(String.format("Sensor with email: %s not found!", user.getEmail()));
             return null;
         }
-        user.setRole(oldUser.getRole());
+
         user.setEmail(oldUser.getEmail());
 
         if (user.getFirstName() == null) {
