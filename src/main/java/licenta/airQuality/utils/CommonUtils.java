@@ -21,7 +21,7 @@ public class CommonUtils {
             convertPPBM = BigDecimal.valueOf(1.88 * value).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
         else if(measurement.getType().equals("O3")){
-            convertPPBM = BigDecimal.valueOf(2 * value).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            convertPPBM = BigDecimal.valueOf(1.96 * value).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
         else if(measurement.getType().equals("SO2")) {
             convertPPBM = BigDecimal.valueOf(2.62 * value).setScale(2, RoundingMode.HALF_UP).doubleValue();
