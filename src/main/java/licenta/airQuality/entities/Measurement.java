@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class Measurement {
-    public static final String TYPE_FIELD_NAME = "type";
-    public static final String UNIT_FIELD_NAME = "unit";
-    public static final String INSTANT_TIME_FIELD_NAME = "instantTime";
 
     @NotNull
     private MeasurementUnit unit;

@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -162,37 +161,6 @@ public class FirebaseService {
         }
     }
 
-    public List<Measurement> getMeasurementsBetweenDates(String sensorUUID, String measurementType, Long startDate, Long endDate) throws ExecutionException, InterruptedException {
-        DocumentSnapshot sensorDocumentSnapshot = getDocumentSnapshot(sensorUUID).get();
-
-        if (sensorDocumentSnapshot.exists() && sensorDocumentSnapshot.getBoolean("active")) {
-            CollectionReference measurementsCollectionRef = sensorDocumentRef(sensorUUID).collection(COLLECTION_MEASUREMENTS_NAME);
-            Instant instantStartDate = Instant.ofEpochSecond(startDate);
-            Instant instantEndDate = Instant.ofEpochSecond(endDate);
-
-            Timestamp timestampStartDate = Timestamp.ofTimeSecondsAndNanos(instantStartDate.getEpochSecond(), instantStartDate.getNano());
-            Timestamp timestampEndDate = Timestamp.ofTimeSecondsAndNanos(instantEndDate.getEpochSecond()+1, instantEndDate.getNano() );
-
-            Query query = measurementsCollectionRef.whereEqualTo("type", measurementType)
-                 .whereGreaterThanOrEqualTo("instantTime",timestampStartDate)
-                  .whereLessThanOrEqualTo("instantTime", timestampEndDate);
-
-            QuerySnapshot querySnapshot = query.get().get();
-            List<Measurement> measurementsBetweenDatesList = new ArrayList<>();
-            for (QueryDocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
-                Measurement measurement = documentSnapshot.toObject(Measurement.class);
-
-                measurementsBetweenDatesList.add(measurement);
-            }
-            log.info(measurementsBetweenDatesList.toString());
-            return measurementsBetweenDatesList;
-        }
-        else {
-            log.info("Sensor is inactive!");
-            return null;
-        }
-    }
-
     public List<Measurement> getLastMeasurements(String sensorUUID, String measurementType) throws ExecutionException, InterruptedException {
 
         DocumentSnapshot sensorDocumentSnapshot = getDocumentSnapshot(sensorUUID).get();
@@ -268,8 +236,7 @@ public class FirebaseService {
         return measurementsWithLatestTimestamp;
     }
 
-    public AirQualityIndexWithType airQualityIndex(String sensorUUID) throws ExecutionException, InterruptedException {
-        Measurement mPM25 = null;
+    public AirQualityIndexWithType airQualityIndex(String sensorUUID) throws ExecutionException, InterruptedException {Measurement mPM25 = null;
       Measurement mPM10 = null;
       Measurement mNO2 = null;
       Measurement mO3 = null;

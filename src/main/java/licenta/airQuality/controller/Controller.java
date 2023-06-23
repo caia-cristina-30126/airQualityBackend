@@ -147,7 +147,7 @@ public class Controller {
 
     @PostMapping("/sensor/createMeasurement") // use this!!
     public String createMeasurementForSpecificSensor(@RequestHeader String sensorUUID, @RequestBody @Validated Measurement measurement) throws ExecutionException, InterruptedException {
-      //  measurement.setInstantTime(Timestamp.now());
+        measurement.setInstantTime(Timestamp.now());
         return firebaseService.createMeasurementForSpecificSensor(sensorUUID, measurement);
     }
 
@@ -161,10 +161,6 @@ public class Controller {
      return firebaseService.getLastMeasurementOfLastHour(sensorUUID);
     }
 
-    @GetMapping("/sensor/measurement/interval") //use this!!
-    public List<Measurement> getMeasurementsBetweenDates(@RequestHeader String sensorUUID, @RequestHeader String measurementType, @RequestHeader Long startDate, @RequestHeader Long endDate) throws ExecutionException, InterruptedException, ParseException {
-        return firebaseService.getMeasurementsBetweenDates(sensorUUID, measurementType, startDate, endDate);
-    }
 
     @GetMapping("/sensor/measurement/lastHoursMeasurements")
     public List<Measurement> getMeasurementsOfLastWeek(@RequestHeader String sensorUUID, @RequestHeader String measurementType) throws ExecutionException, InterruptedException {

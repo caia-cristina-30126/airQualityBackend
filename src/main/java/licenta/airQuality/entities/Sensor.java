@@ -14,16 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class Sensor {
-    public static final String Active_FIELD_NAME = "active";
-   public static final String Location_FIELD_NAME = "location";
-    public static final String Name_FIELD_NAME = "name";
-    public static final String UUID_FIELD_NAME = "uuid";
-    public static final String CreationDate_FIELD_NAME = "creationDate";
+
 
     @NotNull
     private Boolean active;
+ @NotNull
     private GeoPoint location;
     private String name;
+ @NotNull
     private String uuid;
     private Timestamp creationDate;
     private List<String> measurementsType;
