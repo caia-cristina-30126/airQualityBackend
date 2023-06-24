@@ -103,7 +103,7 @@ public class Controller {
     }
 
     @GetMapping("/sensor/list") // pe harta
-    public List<SensorDTO> getSensors(@RequestHeader String idToken) throws ExecutionException, InterruptedException {
+    public List<SensorDTO> getSensors(@RequestHeader String idToken)  {
         try {
             TokenValidationFirebase.validateToken(idToken);
             return sensorService.getAllSensors();

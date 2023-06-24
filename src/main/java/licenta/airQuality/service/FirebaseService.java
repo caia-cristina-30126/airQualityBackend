@@ -301,4 +301,5 @@ public class FirebaseService {
     return new AirQualityIndexWithType(maxValueAQI, type);
 
     }
+
 }
