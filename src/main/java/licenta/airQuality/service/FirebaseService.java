@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static com.google.firebase.cloud.FirestoreClient.getFirestore;
 import static java.util.Objects.isNull;
@@ -25,7 +26,17 @@ import static java.util.Objects.isNull;
 @Service
 public class FirebaseService {
     private static final String DASH = "-";
+    private static final List<String> POLLUTANTS_TYPE = new ArrayList<String>() {
+        {
+            add("PM25");
+            add("PM10");
+            add("NO2");
+            add("SO2");
+            add("O3");
+        }
+    };
     private final String COLLECTION_MEASUREMENTS_NAME = "measurements";
+
 
     private CollectionReference sensorsCollectionRef() {
         return getFirestore().collection("sensors");
@@ -198,9 +209,6 @@ public class FirebaseService {
         measurementsList.add("NO2");
         measurementsList.add("O3");
         measurementsList.add("SO2");
-        measurementsList.add("temp");
-        measurementsList.add("humidity");
-        measurementsList.add("pressure");
         List<Measurement> measurementObjectsList = new ArrayList<>();
         for(String measurement: measurementsList) {
             if(measurement!=null){
@@ -242,7 +250,10 @@ public class FirebaseService {
       Measurement mO3 = null;
       Measurement mSO2 = null;
 
-      for(Measurement measurement : getLastMeasurementOfLastHour(sensorUUID)){
+       List<Measurement> lastM = getLastMeasurementOfLastHour(sensorUUID);
+       List<Measurement> pollutantsTypesOnly = lastM.stream().filter(m -> POLLUTANTS_TYPE.contains(m.getType())).toList();
+
+      for(Measurement measurement : pollutantsTypesOnly){
           if(measurement!=null){
           if(measurement.getType().equals("PM25")){
               mPM25 = measurement;
@@ -265,15 +276,15 @@ public class FirebaseService {
       double maxValueAQI = Double.NEGATIVE_INFINITY;
       String type ="";
 
-      if(mPM10!= null && mNO2!=null) {
-      maxValueAQI = Math.max(mPM10.getValue(),mNO2.getValue() );
-      type = (mPM10.getValue() > mNO2.getValue()) ? mPM10.getType() : mNO2.getType();
+      if(mPM25!= null && mNO2!=null) {
+      maxValueAQI = Math.max(mPM25.getValue(),mNO2.getValue() );
+      type = (mPM25.getValue() > mNO2.getValue()) ? mPM25.getType() : mNO2.getType();
 
-      if (mPM25!= null) {
+      if (mPM10!= null) {
 
-          if (mPM25.getValue() > maxValueAQI) {
-              maxValueAQI = mPM25.getValue();
-              type = mPM25.getType();
+          if (mPM10.getValue() > maxValueAQI) {
+              maxValueAQI = mPM10.getValue();
+              type = mPM10.getType();
           }
       }
 
@@ -295,11 +306,13 @@ public class FirebaseService {
 
       }
       else{
-          log.info("Insufficient data - min pollutants for performing AQI are: PM10 and NO2");
+          log.info("Insufficient data - min pollutants for performing AQI are: PM2.5 and NO2");
       }
 
     return new AirQualityIndexWithType(maxValueAQI, type);
 
     }
+
+
 
 }
