@@ -37,7 +37,6 @@ public class FirebaseService {
     };
     private final String COLLECTION_MEASUREMENTS_NAME = "measurements";
 
-
     private CollectionReference sensorsCollectionRef() {
         return getFirestore().collection("sensors");
     }
@@ -49,6 +48,7 @@ public class FirebaseService {
     private ApiFuture<DocumentSnapshot> getDocumentSnapshot(String sensorUUID) {
         return  sensorDocumentRef(sensorUUID).get();
     }
+
     DocumentSnapshot sensorDocumentSnapshot(String sensorUUID) throws ExecutionException, InterruptedException {
        return getDocumentSnapshot(sensorUUID).get();
     }
@@ -60,7 +60,6 @@ public class FirebaseService {
                 .create(user);
         return user;
     }
-
 
     public User getUserByEmail(String email) {
         if(StringUtil.isNullOrEmpty(email)) {
@@ -162,7 +161,7 @@ public class FirebaseService {
     measurement.setValue(convertedValue);
                 return measurement;
             } else {
-                log.info("No measurements found for type " + measurementType);
+                log.info("No measurements data found for type " + measurementType);
                 return null;
             }
         }
@@ -202,6 +201,7 @@ public class FirebaseService {
             return null;
         }
     }
+
     public List<Measurement> getLastMeasurementOfLastHour(@RequestHeader String sensorUUID) throws ExecutionException, InterruptedException {
         List<String> measurementsList = new ArrayList<>();
         measurementsList.add("PM25");
@@ -209,6 +209,9 @@ public class FirebaseService {
         measurementsList.add("NO2");
         measurementsList.add("O3");
         measurementsList.add("SO2");
+        measurementsList.add("temp");
+        measurementsList.add("humidity");
+        measurementsList.add("pressure");
         List<Measurement> measurementObjectsList = new ArrayList<>();
         for(String measurement: measurementsList) {
             if(measurement!=null){
@@ -312,7 +315,5 @@ public class FirebaseService {
     return new AirQualityIndexWithType(maxValueAQI, type);
 
     }
-
-
 
 }

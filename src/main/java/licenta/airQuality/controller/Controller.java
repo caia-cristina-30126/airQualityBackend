@@ -48,7 +48,7 @@ public class Controller {
     @GetMapping("/home")
     public Response index(@RequestHeader String idToken) {
         try {
-            FirebaseToken firebaseToken = TokenValidationFirebase.validateToken(idToken);
+            FirebaseToken firebaseToken = TokenValidationFirebase.tokenValidation(idToken);
             String userRole = (String) firebaseToken.getClaims().get("role");
             log.info("userRole" + userRole);
             String userId = firebaseToken.getUid();
@@ -90,7 +90,7 @@ public class Controller {
     @PostMapping("/createSensor") // admin
     public Response createSensor(@RequestBody @Validated SensorDTO sensor, @RequestHeader String idToken) throws ExecutionException, InterruptedException {
         try {
-            TokenValidationFirebase.validateToken(idToken);
+            TokenValidationFirebase.tokenValidation(idToken);
             final SensorDTO sensorDTO = sensorService.createSensor(sensor);
             return Response.builder()
                     .message(String.format("Successfully with UUID: %s created!", sensorDTO.getUuid()))
@@ -105,7 +105,7 @@ public class Controller {
     @GetMapping("/sensor/list") // pe harta
     public List<SensorDTO> getSensors(@RequestHeader String idToken)  {
         try {
-            TokenValidationFirebase.validateToken(idToken);
+            TokenValidationFirebase.tokenValidation(idToken);
             return sensorService.getAllSensors();
         } catch (FirebaseAuthException e) {
             return null;

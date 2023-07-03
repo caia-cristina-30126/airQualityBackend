@@ -4,7 +4,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 
 public class TokenValidationFirebase {
-    public static FirebaseToken validateToken(String idToken) throws FirebaseAuthException {
+    public static FirebaseToken tokenValidation(String idToken) throws FirebaseAuthException {
 
         return FirebaseAuth.getInstance().verifyIdToken(idToken);
     }

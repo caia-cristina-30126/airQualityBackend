@@ -18,10 +18,10 @@ public class Sensor {
 
     @NotNull
     private Boolean active;
- @NotNull
+    @NotNull
     private GeoPoint location;
     private String name;
- @NotNull
+    @NotNull
     private String uuid;
     private Timestamp creationDate;
     private List<String> measurementsType;

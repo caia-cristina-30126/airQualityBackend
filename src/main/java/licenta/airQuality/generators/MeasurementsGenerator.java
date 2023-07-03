@@ -32,19 +32,21 @@ public class MeasurementsGenerator {
     final static Double RANGE_MIN_PM10 = 10.0;
     final static Double RANGE_MAX_PM10 = 100.0;
 
-    final static Double RANGE_MIN_NO2 = 0.0;
-    final static Double RANGE_MAX_NO2 = 180.85;
+    final static Double RANGE_MIN_NO2 = 5.4; // 10 MICROGRAMS PER CUBIC METER
+    final static Double RANGE_MAX_NO2 = 122.0; // 230
 
-    final static Double RANGE_MIN_O3 = 0.0;
-    final static Double RANGE_MAX_O3 = 150.0;
-    final static Double RANGE_MIN_SO2 = 0.0;
-    final static Double RANGE_MAX_SO2 = 150.0;
-    final static Double RANGE_MIN_CELSIUS = -10.0;
-    final static Double RANGE_MAX_CELSIUS = 40.0;
+    final static Double RANGE_MIN_O3 = 5.10;
+    final static Double RANGE_MAX_O3 = 122.5;
+    final static Double RANGE_MIN_SO2 = 52.5; //20
+    final static Double RANGE_MAX_SO2 = 190.1; //500
+    final static Double RANGE_MIN_CELSIUS = 15.0;
+    final static Double RANGE_MAX_CELSIUS = 35.0;
 
-    final static Double RANGE_MIN_HUMIDITY = 30.0;
-    final static Double RANGE_MAX_HUMIDITY = 60.0;
+    final static Double RANGE_MIN_HUMIDITY = 40.0;
+    final static Double RANGE_MAX_HUMIDITY = 80.0;
 
+    final static Double RANGE_MIN_PRESSURE = 1000.0;
+    final static Double RANGE_MAX_PRESSURE = 1030.0;
 
     private final FirebaseService firebaseService;
 
@@ -57,7 +59,7 @@ public class MeasurementsGenerator {
 
     public void generate() {
         log.info("Start generating measurements");
-        final GeoPointDTO geoPoint = new GeoPointDTO(Location.MARASTI_CJ_RO.getLatitude(), Location.MARASTI_CJ_RO.getLongitude());
+        final GeoPointDTO geoPoint = new GeoPointDTO(Location.VOORBURG_THE_HAGUE_NL.getLatitude(), Location.VOORBURG_THE_HAGUE_NL.getLongitude());
         final String uuid = UUID.randomUUID().toString();
         final List<String> measurementsType = new ArrayList<>();
         measurementsType.add("PM25");
@@ -68,7 +70,7 @@ public class MeasurementsGenerator {
         measurementsType.add("temp");
         measurementsType.add("humidity");
         measurementsType.add("pressure");
-        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "MARASTI_CJ_RO", LocalDate.now(), measurementsType);
+        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "VOORBURG_THE_HAGUE_NL", LocalDate.now(), measurementsType);
         try {
             sensorService.createSensor(sensor);
         } catch (ExecutionException | InterruptedException e) {
@@ -85,18 +87,18 @@ public class MeasurementsGenerator {
         final String humidityType = "humidity";
         final String pressureType = "pressure";
         // final Double offset = 1.1;
-        for(int i = 0; i< 12; i++) {
+        for(int i = 0; i< 24; i++) {
             Instant temporaryInstant = now.minusMillis(i * MILLIS_IN_HOUR);
-            final Random r = new Random(temporaryInstant.toEpochMilli());
+            final Random random = new Random(temporaryInstant.toEpochMilli());
             final Timestamp timestamp = Timestamp.ofTimeSecondsAndNanos(temporaryInstant.getEpochSecond(), temporaryInstant.getNano());
-            double pm25Value = r.nextDouble(RANGE_MIN_CELSIUS, RANGE_MAX_CELSIUS);
-            double pm10Value = r.nextDouble(RANGE_MIN_HUMIDITY, RANGE_MAX_HUMIDITY);
-            double NO2Value = r.nextDouble(RANGE_MIN_NO2, RANGE_MAX_NO2);
-            double O3Value = r.nextDouble(RANGE_MIN_O3, RANGE_MAX_O3);
-            double SO2Value = r.nextDouble(RANGE_MIN_SO2, RANGE_MAX_SO2);
-            double tempValue = r.nextDouble(RANGE_MIN_CELSIUS, RANGE_MAX_CELSIUS);
-            double humidityValue = r.nextDouble(RANGE_MIN_HUMIDITY, RANGE_MAX_HUMIDITY);
-            double pressureValue = r.nextDouble(RANGE_MIN_HUMIDITY, RANGE_MAX_HUMIDITY);
+            double pm25Value = random.nextGaussian() * 1.2 + 25;
+            double pm10Value = random.nextGaussian() * 1.2 + 35;
+            double NO2Value = random.nextGaussian() * 1.2 + 16; //30 micrograms/m3
+            double O3Value = random.nextGaussian() * 1.2 + 18; // 35
+            double SO2Value = random.nextGaussian() * 1.2 + 14; // 35
+            double tempValue = random.nextGaussian() * 3.0 + 23;
+            double humidityValue = random.nextGaussian() * 5.0 + 65;
+            double pressureValue = random.nextGaussian() * 30.0 + 1020;
             final Measurement measurementPM25 = new Measurement(MeasurementUnit.MICROGRAMS_PER_CUBIC_METER, pm25Value, timestamp, pm25Type);
             final Measurement measurementPM10 = new Measurement(MeasurementUnit.MICROGRAMS_PER_CUBIC_METER, pm10Value, timestamp, pm10Type);
             final Measurement measurementNO2   = new Measurement(MeasurementUnit.PARTS_PER_BILLION, NO2Value, timestamp, NO2Type);
@@ -111,7 +113,7 @@ public class MeasurementsGenerator {
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPM10);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementNO2);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementO3);
-                firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementSO2);
+               firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementSO2);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementTemp);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementHumidity);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPressure);
