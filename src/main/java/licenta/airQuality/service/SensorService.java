@@ -6,7 +6,6 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import io.netty.util.internal.StringUtil;
 import licenta.airQuality.converters.Converter;
-import licenta.airQuality.dto.GeoPointDTO;
 import licenta.airQuality.dto.SensorDTO;
 import licenta.airQuality.entities.Sensor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,6 @@
 package licenta.airQuality.generators;
 
 import com.google.cloud.Timestamp;
-import com.google.cloud.firestore.GeoPoint;
 import licenta.airQuality.constants.Location;
 import licenta.airQuality.constants.MeasurementUnit;
 
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -59,7 +57,7 @@ public class MeasurementsGenerator {
 
     public void generate() {
         log.info("Start generating measurements");
-        final GeoPointDTO geoPoint = new GeoPointDTO(Location.VOORBURG_THE_HAGUE_NL.getLatitude(), Location.VOORBURG_THE_HAGUE_NL.getLongitude());
+        final GeoPointDTO geoPoint = new GeoPointDTO(Location.SCHIEDAM_ROTTERDAM_NL.getLatitude(), Location.SCHIEDAM_ROTTERDAM_NL.getLongitude());
         final String uuid = UUID.randomUUID().toString();
         final List<String> measurementsType = new ArrayList<>();
         measurementsType.add("PM25");
@@ -70,7 +68,7 @@ public class MeasurementsGenerator {
         measurementsType.add("temp");
         measurementsType.add("humidity");
         measurementsType.add("pressure");
-        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "VOORBURG_THE_HAGUE_NL", LocalDate.now(), measurementsType);
+        final SensorDTO sensor = new SensorDTO(true, uuid, geoPoint, "SCHIEDAM_ROTTERDAM_NL", LocalDate.now(), measurementsType);
         try {
             sensorService.createSensor(sensor);
         } catch (ExecutionException | InterruptedException e) {
@@ -91,13 +89,13 @@ public class MeasurementsGenerator {
             Instant temporaryInstant = now.minusMillis(i * MILLIS_IN_HOUR);
             final Random random = new Random(temporaryInstant.toEpochMilli());
             final Timestamp timestamp = Timestamp.ofTimeSecondsAndNanos(temporaryInstant.getEpochSecond(), temporaryInstant.getNano());
-            double pm25Value = random.nextGaussian() * 1.2 + 25;
-            double pm10Value = random.nextGaussian() * 1.2 + 35;
-            double NO2Value = random.nextGaussian() * 1.2 + 16; //30 micrograms/m3
-            double O3Value = random.nextGaussian() * 1.2 + 18; // 35
-            double SO2Value = random.nextGaussian() * 1.2 + 14; // 35
-            double tempValue = random.nextGaussian() * 3.0 + 23;
-            double humidityValue = random.nextGaussian() * 5.0 + 65;
+            double pm25Value = random.nextGaussian() * 1.2 + 60;
+            double pm10Value = random.nextGaussian() * 1.2 + 80;
+            double NO2Value = random.nextGaussian() * 1.2 + 70; //30 micrograms/m3
+            double O3Value = random.nextGaussian() * 1.2 + 33; // 35
+            double SO2Value = random.nextGaussian() * 1.2 + 45; // 35
+            double tempValue = random.nextGaussian() * 3.0 + 20;
+            double humidityValue = random.nextGaussian() * 5.0 + 70;
             double pressureValue = random.nextGaussian() * 30.0 + 1020;
             final Measurement measurementPM25 = new Measurement(MeasurementUnit.MICROGRAMS_PER_CUBIC_METER, pm25Value, timestamp, pm25Type);
             final Measurement measurementPM10 = new Measurement(MeasurementUnit.MICROGRAMS_PER_CUBIC_METER, pm10Value, timestamp, pm10Type);
@@ -110,13 +108,13 @@ public class MeasurementsGenerator {
 
             try {
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPM25);
-                firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPM10);
+               // firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPM10);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementNO2);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementO3);
-               firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementSO2);
+              // firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementSO2);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementTemp);
                 firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementHumidity);
-                firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPressure);
+               // firebaseService.createMeasurementForSpecificSensor(sensor.getUuid(), measurementPressure);
                 log.info("Measurement successfully saved" );
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);

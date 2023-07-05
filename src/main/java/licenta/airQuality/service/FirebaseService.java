@@ -2,7 +2,6 @@ package licenta.airQuality.service;
 
 import com.google.api.core.ApiFuture;
 
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import io.netty.util.internal.StringUtil;
 import licenta.airQuality.entities.AirQualityIndexWithType;
@@ -13,10 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static com.google.firebase.cloud.FirestoreClient.getFirestore;
 import static java.util.Objects.isNull;
